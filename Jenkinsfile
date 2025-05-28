@@ -21,10 +21,9 @@ pipeline {
         archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
       }
     }
-    stage('Run JAR') {
+    stage('Prepare JAR for Docker') {
       steps {
-        echo '🚀 Running the Spring Boot application...'
-        sh 'nohup java -jar target/*.jar > app.log 2>&1 &'
+        sh 'cp target/*.jar app.jar'  // move it to context
       }
     }
   }
