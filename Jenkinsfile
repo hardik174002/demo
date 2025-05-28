@@ -12,11 +12,13 @@ pipeline {
         checkout scm
       }
     }
+
     stage('Lint Check') {
       steps {
         sh 'mvn checkstyle:check' // Java
       }
     }
+
     stage('Build JAR') {
       steps {
         echo '🔨 Building the project with Maven...'
@@ -59,18 +61,20 @@ pipeline {
 
   post {
     failure {
-      mail to: 'hvhardik@gmail.com'
-           subject: "❌ Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-           body: """
-            Hi Team,
+      mail(
+        to: 'hvhardik@gmail.com',
+        subject: "❌ Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """
+Hi Team,
 
-            The build *${env.JOB_NAME}* #${env.BUILD_NUMBER} has **FAILED**.
+The build *${env.JOB_NAME}* #${env.BUILD_NUMBER} has **FAILED**.
 
-            Check console output at: ${env.BUILD_URL}
+Check console output at: ${env.BUILD_URL}
 
-            Regards,
-            Jenkins
-            """
+Regards,
+Jenkins
+"""
+      )
     }
   }
 }
