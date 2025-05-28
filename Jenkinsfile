@@ -22,7 +22,12 @@ pipeline {
       }
     }
   }
-
+    stage('Run JAR') {
+      steps {
+        echo '🚀 Running the Spring Boot application...'
+        sh 'nohup java -jar target/*.jar > app.log 2>&1 &'
+      }
+    }
   post {
     success {
       echo '✅ Build and archive successful!'
