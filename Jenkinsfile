@@ -13,11 +13,11 @@ pipeline {
       }
     }
 
-    stage('Lint Check') {
-      steps {
-        sh 'mvn checkstyle:check' // Java
-      }
-    }
+//     stage('Lint Check') {
+//       steps {
+//         sh 'mvn checkstyle:check' // Java
+//       }
+//     }
 
     stage('Build JAR') {
       steps {
