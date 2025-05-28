@@ -60,6 +60,18 @@ pipeline {
   }
 
   post {
+      always {
+        echo '🧹 [Post] Always runs'
+      }
+      success {
+        echo '✅ [Post] Runs on SUCCESS only'
+      }
+      unstable {
+        echo '⚠️ [Post] Runs if build is UNSTABLE'
+      }
+      changed {
+        echo '🔁 [Post] Runs if build result changed from last time'
+      }
     failure {
       mail(
         to: 'hvhardik@gmail.com',
