@@ -12,7 +12,11 @@ pipeline {
         checkout scm
       }
     }
-
+    stage('Lint Check') {
+      steps {
+        sh 'mvn checkstyle:check' // Java
+      }
+    }
     stage('Build JAR') {
       steps {
         echo '🔨 Building the project with Maven...'
