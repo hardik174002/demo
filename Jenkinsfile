@@ -1,33 +1,34 @@
-pipeline{
+pipeline {
+  agent any
 
-    agent any
-
-    stages{
-        stage('Checkout'){
-            steps{
-                checkout scm
-            }
-        }
-        stage{
-            steps{
-                echo "Building Jar file"
-                sh 'mvn clean install -DskipTests'
-            }
-        }
-        stage('Archive Artifact') {
-          steps {
-            echo '📦 Archiving built JAR...'
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-          }
-        }
-    }
-    post {
-        success {
-          echo '✅ Build successful. Artifact is archived.'
-        }
-        failure {
-          echo '❌ Build failed. Check the logs.'
-        }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
+    stage('Build JAR') {
+      steps {
+        echo '🔨 Building the project with Maven...'
+        sh 'mvn clean package -DskipTests'
+      }
+    }
+
+    stage('Archive Artifact') {
+      steps {
+        echo '📦 Archiving target/*.jar'
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+      }
+    }
+  }
+
+  post {
+    success {
+      echo '✅ Build and archive successful!'
+    }
+    failure {
+      echo '❌ Build failed.'
+    }
+  }
 }
