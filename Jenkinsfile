@@ -1,5 +1,9 @@
 pipeline {
-  agent any
+   agent {
+     docker {
+       image 'maven:3.9-openjdk-17'
+     }
+   }
 
   environment {
     IMAGE_NAME = "my-spring-app"
