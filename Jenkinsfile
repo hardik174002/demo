@@ -1,6 +1,11 @@
 pipeline {
   agent any
 
+  environment {
+    IMAGE_NAME = "my-spring-app"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+  }
+
   stages {
     stage('Checkout') {
       steps {
@@ -21,16 +26,36 @@ pipeline {
         archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
       }
     }
+
     stage('Prepare JAR for Docker') {
       steps {
-        sh 'cp target/*.jar app.jar'  // move it to context
+        echo '🗃️ Preparing JAR for Docker build context...'
+        sh 'cp target/*.jar app.jar'
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        echo '🐳 Building Docker image...'
+        sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+      }
+    }
+
+    stage('Run Docker Container') {
+      steps {
+        echo '🚀 Running Docker container...'
+        sh '''
+          docker stop my-spring-app || true
+          docker rm my-spring-app || true
+          docker run -d --name my-spring-app -p 8082:8082 ${IMAGE_NAME}:${IMAGE_TAG}
+        '''
       }
     }
   }
 
   post {
     success {
-      echo '✅ Build and archive successful!'
+      echo '✅ Build, image, and container run successful!'
     }
     failure {
       echo '❌ Build failed.'
