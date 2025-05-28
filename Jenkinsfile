@@ -58,11 +58,19 @@ pipeline {
   }
 
   post {
-    success {
-      echo '✅ Build, image, and container run successful!'
-    }
     failure {
-      echo '❌ Build failed.'
+      mail to: 'hvhardik@gmail.com'
+           subject: "❌ Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+           body: """
+            Hi Team,
+
+            The build *${env.JOB_NAME}* #${env.BUILD_NUMBER} has **FAILED**.
+
+            Check console output at: ${env.BUILD_URL}
+
+            Regards,
+            Jenkins
+            """
     }
   }
 }

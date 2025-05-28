@@ -8,6 +8,6 @@ public class FakeController {
 
     @GetMapping("/")
     public String  hello(){
-        return "Arigato Narayn g!";
+        return "Arigato Narayn g!"
     }
 }
