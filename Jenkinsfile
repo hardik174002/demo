@@ -121,21 +121,21 @@ pipeline {
     changed {
       echo '🔁 [Post] Runs if build result changed from last time'
     }
-    failure {
-      mail(
-        to: 'hvhardik@gmail.com',
-        subject: "❌ Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """
-Hi Team,
+//     failure {
+//       mail(
+//         to: 'hvhardik@gmail.com',
+//         subject: "❌ Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+//         body: """
+// Hi Team,
 
-The build *${env.JOB_NAME}* #${env.BUILD_NUMBER} has **FAILED**.
+// The build *${env.JOB_NAME}* #${env.BUILD_NUMBER} has **FAILED**.
 
-Check console output at: ${env.BUILD_URL}
+// Check console output at: ${env.BUILD_URL}
 
-Regards,
-Jenkins
-"""
-      )
-    }
+// Regards,
+// Jenkins
+// """
+//       )
+//     }
   }
 }
