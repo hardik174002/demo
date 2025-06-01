@@ -1,9 +1,15 @@
 pipeline {
-   agent {
-     docker {
-       image 'maven:3.9-eclipse-temurin-17'
-     }
-   }
+  agent {
+    docker {
+      image 'maven:3.9-eclipse-temurin-17'
+    }
+  }
+
+  parameters {
+    string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
+    choice(name: 'ENV', choices: ['dev', 'qa', 'prod'], description: 'Target deployment environment')
+    booleanParam(name: 'RUN_DOCKER', defaultValue: true, description: 'Build and run Docker container?')
+  }
 
   environment {
     IMAGE_NAME = "my-spring-app"
@@ -13,19 +19,37 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        checkout scm
+        echo "📦 Checking out branch: ${params.BRANCH}"
+        sh "git checkout ${params.BRANCH}"
       }
     }
 
-//     stage('Lint Check') {
-//       steps {
-//         sh 'mvn checkstyle:check' // Java
-//       }
-//     }
+    stage('Parallel Quality Gates') {
+      parallel {
+        stage('Unit Tests') {
+          steps {
+            echo '🧪 Running unit tests...'
+            sh 'mvn test -Dtest=*UnitTest'
+          }
+        }
+        stage('Integration Tests') {
+          steps {
+            echo '🔬 Running integration tests...'
+            sh 'mvn verify -Dtest=*IntegrationTest'
+          }
+        }
+        stage('Code Quality Check') {
+          steps {
+            echo '🧼 Running checkstyle...'
+            sh 'mvn checkstyle:check'
+          }
+        }
+      }
+    }
 
     stage('Build JAR') {
       steps {
-        echo '🔨 Building the project with Maven...'
+        echo "🔨 Building the project for ${params.ENV} environment..."
         sh 'mvn clean install'
       }
     }
@@ -38,6 +62,9 @@ pipeline {
     }
 
     stage('Prepare JAR for Docker') {
+      when {
+        expression { return params.RUN_DOCKER }
+      }
       steps {
         echo '🗃️ Preparing JAR for Docker build context...'
         sh 'cp target/*.jar app.jar'
@@ -45,6 +72,9 @@ pipeline {
     }
 
     stage('Build Docker Image') {
+      when {
+        expression { return params.RUN_DOCKER }
+      }
       steps {
         echo '🐳 Building Docker image...'
         sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
@@ -52,6 +82,9 @@ pipeline {
     }
 
     stage('Run Docker Container') {
+      when {
+        expression { return params.RUN_DOCKER }
+      }
       steps {
         echo '🚀 Running Docker container...'
         sh '''
@@ -64,18 +97,18 @@ pipeline {
   }
 
   post {
-      always {
-        echo '🧹 [Post] Always runs'
-      }
-      success {
-        echo '✅ [Post] Runs on SUCCESS only'
-      }
-      unstable {
-        echo '⚠️ [Post] Runs if build is UNSTABLE'
-      }
-      changed {
-        echo '🔁 [Post] Runs if build result changed from last time'
-      }
+    always {
+      echo '🧹 [Post] Always runs'
+    }
+    success {
+      echo '✅ [Post] Runs on SUCCESS only'
+    }
+    unstable {
+      echo '⚠️ [Post] Runs if build is UNSTABLE'
+    }
+    changed {
+      echo '🔁 [Post] Runs if build result changed from last time'
+    }
     failure {
       mail(
         to: 'hvhardik@gmail.com',
