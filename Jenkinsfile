@@ -9,6 +9,9 @@ pipeline {
     string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
     choice(name: 'ENV', choices: ['dev', 'qa', 'prod'], description: 'Target deployment environment')
     booleanParam(name: 'RUN_DOCKER', defaultValue: true, description: 'Build and run Docker container?')
+    booleanParam(name: 'RUN_UNIT_TEST',defaultValue:true ,description: 'Do you want to run unit test?')
+    booleanParam(name:'RUN_INTEGRATION_TEST',defaultValue:true,description:'Do you want to run Integration test?')
+    booleanParam(name:'RUN_LINT',defaultValue:true,description:'Do you want to run Lint?')
   }
 
   environment {
@@ -27,12 +30,18 @@ pipeline {
     stage('Parallel Quality Gates') {
       parallel {
         stage('Unit Tests') {
+            when {
+            expression { return params.RUN_UNIT_TEST }
+            }
           steps {
             echo '🧪 Running unit tests...'
             sh 'mvn test -Dtest=*UnitTest'
           }
         }
         stage('Integration Tests') {
+            when {
+            expression { return params.RUN_INTEGRATION_TEST }
+            }
           steps {
             echo '🔬 Running integration tests...'
             sh 'mvn verify -Dtest=*IntegrationTest'
@@ -40,6 +49,9 @@ pipeline {
         }
         stage('Code Quality Check') {
           steps {
+            when {
+            expression { return params.RUN_LINT }
+            }
             echo '🧼 Running checkstyle...'
             sh 'mvn checkstyle:check'
           }
