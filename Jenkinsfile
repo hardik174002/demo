@@ -31,7 +31,7 @@ pipeline {
       parallel {
         stage('Unit Tests') {
             when {
-            expression { return params.RUN_UNIT_TEST }
+                expression { return params.RUN_UNIT_TEST }
             }
           steps {
             echo '🧪 Running unit tests...'
@@ -40,7 +40,7 @@ pipeline {
         }
         stage('Integration Tests') {
             when {
-            expression { return params.RUN_INTEGRATION_TEST }
+                expression { return params.RUN_INTEGRATION_TEST }
             }
           steps {
             echo '🔬 Running integration tests...'
@@ -48,10 +48,10 @@ pipeline {
           }
         }
         stage('Code Quality Check') {
-          steps {
             when {
-            expression { return params.RUN_LINT }
+                expression { return params.RUN_LINT }
             }
+          steps {
             echo '🧼 Running checkstyle...'
             sh 'mvn checkstyle:check'
           }
@@ -121,21 +121,6 @@ pipeline {
     changed {
       echo '🔁 [Post] Runs if build result changed from last time'
     }
-//     failure {
-//       mail(
-//         to: 'hvhardik@gmail.com',
-//         subject: "❌ Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-//         body: """
-// Hi Team,
 
-// The build *${env.JOB_NAME}* #${env.BUILD_NUMBER} has **FAILED**.
-
-// Check console output at: ${env.BUILD_URL}
-
-// Regards,
-// Jenkins
-// """
-//       )
-//     }
   }
 }
