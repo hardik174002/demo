@@ -1,9 +1,5 @@
 pipeline {
-  agent {
-    docker {
-        image 'your-custom-image:with-docker-cli'
-        args '-v /var/run/docker.sock:/var/run/docker.sock'
-    }
+  agent any
   }
 
   parameters {
